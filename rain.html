@@ -96,6 +96,32 @@
     from { transform: rotate(0deg);}
     to { transform: rotate(360deg);}
   }
+  
+  /* --- CSS CHO NÚT FACEBOOK --- */
+  #facebook-button {
+    position: fixed;
+    bottom: 20px;
+    left: 10px;
+    background-color: #1877F2; /* Màu của Facebook */
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 99999;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  #facebook-button:hover {
+    background-color: #166fe5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
 </style>
 
 <script>
@@ -106,7 +132,6 @@
 <div id="threejs-canvas"></div>
 <div id="watermark">Made by Quang Trung</div>
 
-<!-- Lời cảm ơn cuối -->
 <div id="final-message">
   <span id="final-text">Mong rằng hôm nay bạn sẽ tràn ngập niềm vui 💌</span>
 </div>
@@ -116,7 +141,6 @@
   document.getElementById('bg-audio').src = 'music/' + audioin + '.mp3';
 </script>
 
-<!-- Nút bật/tắt nhạc -->
 <button id="toggle-music" aria-label="Bật/Tắt nhạc">
   <svg id="icon-note" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
     <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" fill="currentColor"/>
@@ -126,6 +150,9 @@
     <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/>
   </svg>
 </button>
+
+<button id="facebook-button">Kết nối với tớ</button>
+
 
 <script>
   const toggleBtn = document.getElementById("toggle-music");
@@ -173,9 +200,15 @@
       msg.style.display = "block";
     }, 20000);
   });
+  
+  // **SỰ KIỆN CLICK CHO NÚT FACEBOOK**
+  document.getElementById('facebook-button').addEventListener('click', function() {
+    // **NHỚ THAY LINK FACEBOOK CỦA MÀY VÀO ĐÂY**
+    window.open('https://www.facebook.com/share/17DvydnHhy/', '_blank');
+  });
+
 </script>
 
-<!-- Hiệu ứng chính Three.js -->
 <script type="module" src="script.js?v=02"></script>
 </body>
 </html>
