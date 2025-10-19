@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+</head>
+<body>
+<style>body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-weight: 100;touch-action:none
+}</style>
+<script>
+const texts = ["Chúc 20/10","Vui Vẻ","Xinh Đẹp","Nhiều Quà Nhiều Hoa"];
+const audioin = "a";
+</script>
+<div id="threejs-canvas"></div>
+
+  <style>
+    #toggle-music {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #fff;
+      padding: 6px;
+      transition: transform 0.2s ease;
+      z-index: 999999;
+    }
+    #toggle-music.playing #icon-note,
+    #toggle-music.playing #icon-note-slash {
+      animation: spin 3s linear infinite;
+    }
+    #toggle-music svg { display: block; }
+    @keyframes spin {
+      from { transform: rotate(0deg);}
+      to { transform: rotate(360deg);}
+    }
+  </style>
+  <!-- Audio element (ẩn) -->
+  <audio id="bg-audio" autoplay preload="auto" loop></audio>
+  <script>
+    document.getElementById('bg-audio').src = 'music/' + audioin + '.mp3';
+  </script>
+  <!-- Nút toggle -->
+  <button id="toggle-music" aria-label="Bật/Tắt nhạc">
+    <svg id="icon-note" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+      <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" fill="currentColor"/>
+    </svg>
+    <svg id="icon-note-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
+      <path d="M10 3v10.55A4 4 0 1 0 12 15.55V5h4V3h-6z" fill="currentColor"/>
+      <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/>
+    </svg>
+  </button>
+  <script>
+    const toggleBtn = document.getElementById("toggle-music");
+    const audio = document.getElementById("bg-audio");
+    const iconNote = document.getElementById("icon-note");
+    const iconNoteSlash = document.getElementById("icon-note-slash");
+    let isPlaying = false;
+    function updateIcon() {
+      if (isPlaying) {
+        iconNote.style.display = "block";
+        iconNoteSlash.style.display = "none";
+        toggleBtn.classList.add("playing");
+      } else {
+        iconNote.style.display = "none";
+        iconNoteSlash.style.display = "block";
+        toggleBtn.classList.remove("playing");
+      }
+    }
+    toggleBtn.addEventListener("click", () => {
+      if (!isPlaying) {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            isPlaying = true; updateIcon();
+          }).catch((err) => {
+            isPlaying = false; updateIcon();
+          });
+        } else {
+          isPlaying = true; audio.play(); updateIcon();
+        }
+      } else {
+        audio.pause(); isPlaying = false; updateIcon();
+      }
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+      isPlaying = false; updateIcon();
+    });
+  </script>
+
+<script type="module" src="script.js?v=01"></script>
+</body>
+</html>
