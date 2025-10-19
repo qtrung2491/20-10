@@ -5,97 +5,177 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Love</title>
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 </head>
 <body>
-<style>body {
-  margin: 0;
-  background: #000;
-  color: #fff;
-  font-weight: 100;touch-action:none
-}</style>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-weight: 100;
+    touch-action: none;
+  }
+
+  #watermark {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.3);
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  /* Hiệu ứng lời cảm ơn */
+  #final-message {
+    font-family: 'Pacifico', cursive;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    opacity: 0;
+    display: none; /* 👈 đảm bảo ẩn lúc đầu */
+    font-family: "Mali", cursive;
+    font-size: 1.8rem;
+    color: #ffb6c1;
+    text-shadow: 0 0 15px rgba(255, 182, 193, 0.6);
+    z-index: 99999;
+    pointer-events: none;
+    animation: fadeInText 2s ease forwards;
+  }
+
+  @keyframes fadeInText {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { text-shadow: 0 0 10px #fff; }
+    50% { text-shadow: 0 0 25px #ff80bf, 0 0 50px #ff80bf; }
+    100% { text-shadow: 0 0 10px #fff; }
+  }
+
+  #final-text {
+    font-family: 'Pacifico', cursive;
+    display: inline-block;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* Nút bật/tắt nhạc */
+  #toggle-music {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #fff;
+    padding: 6px;
+    transition: transform 0.2s ease;
+    z-index: 999999;
+  }
+
+  #toggle-music.playing #icon-note,
+  #toggle-music.playing #icon-note-slash {
+    animation: spin 3s linear infinite;
+  }
+
+  #toggle-music svg { display: block; }
+
+  @keyframes spin {
+    from { transform: rotate(0deg);}
+    to { transform: rotate(360deg);}
+  }
+</style>
+
 <script>
-const texts = ["Chúc 20/10","Vui Vẻ","Xinh Đẹp","Nhiều Quà Nhiều Hoa"];
-const audioin = "a";
+  const texts = ["Chúc 20/10","Vui Vẻ","Nhiều Quà Nhiều Hoa"];
+  const audioin = "a";
 </script>
+
 <div id="threejs-canvas"></div>
+<div id="watermark">Made by Quang Trung</div>
 
-  <style>
-    #toggle-music {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      background: none;
-      border: 2px solid #fff;
-      border-radius: 50%;
-      cursor: pointer;
-      color: #fff;
-      padding: 6px;
-      transition: transform 0.2s ease;
-      z-index: 999999;
-    }
-    #toggle-music.playing #icon-note,
-    #toggle-music.playing #icon-note-slash {
-      animation: spin 3s linear infinite;
-    }
-    #toggle-music svg { display: block; }
-    @keyframes spin {
-      from { transform: rotate(0deg);}
-      to { transform: rotate(360deg);}
-    }
-  </style>
-  <!-- Audio element (ẩn) -->
-  <audio id="bg-audio" autoplay preload="auto" loop></audio>
-  <script>
-    document.getElementById('bg-audio').src = 'music/' + audioin + '.mp3';
-  </script>
-  <!-- Nút toggle -->
-  <button id="toggle-music" aria-label="Bật/Tắt nhạc">
-    <svg id="icon-note" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-      <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" fill="currentColor"/>
-    </svg>
-    <svg id="icon-note-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
-      <path d="M10 3v10.55A4 4 0 1 0 12 15.55V5h4V3h-6z" fill="currentColor"/>
-      <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/>
-    </svg>
-  </button>
-  <script>
-    const toggleBtn = document.getElementById("toggle-music");
-    const audio = document.getElementById("bg-audio");
-    const iconNote = document.getElementById("icon-note");
-    const iconNoteSlash = document.getElementById("icon-note-slash");
-    let isPlaying = false;
-    function updateIcon() {
-      if (isPlaying) {
-        iconNote.style.display = "block";
-        iconNoteSlash.style.display = "none";
-        toggleBtn.classList.add("playing");
-      } else {
-        iconNote.style.display = "none";
-        iconNoteSlash.style.display = "block";
-        toggleBtn.classList.remove("playing");
-      }
-    }
-    toggleBtn.addEventListener("click", () => {
-      if (!isPlaying) {
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            isPlaying = true; updateIcon();
-          }).catch((err) => {
-            isPlaying = false; updateIcon();
-          });
-        } else {
-          isPlaying = true; audio.play(); updateIcon();
-        }
-      } else {
-        audio.pause(); isPlaying = false; updateIcon();
-      }
-    });
-    document.addEventListener("DOMContentLoaded", () => {
-      isPlaying = false; updateIcon();
-    });
-  </script>
+<!-- Lời cảm ơn cuối -->
+<div id="final-message">
+  <span id="final-text">Mong rằng hôm nay bạn sẽ tràn ngập niềm vui 💌</span>
+</div>
 
-<script type="module" src="script.js?v=01"></script>
+<audio id="bg-audio" autoplay preload="auto" loop></audio>
+<script>
+  document.getElementById('bg-audio').src = 'music/' + audioin + '.mp3';
+</script>
+
+<!-- Nút bật/tắt nhạc -->
+<button id="toggle-music" aria-label="Bật/Tắt nhạc">
+  <svg id="icon-note" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+    <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" fill="currentColor"/>
+  </svg>
+  <svg id="icon-note-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="display: none;">
+    <path d="M10 3v10.55A4 4 0 1 0 12 15.55V5h4V3h-6z" fill="currentColor"/>
+    <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/>
+  </svg>
+</button>
+
+<script>
+  const toggleBtn = document.getElementById("toggle-music");
+  const audio = document.getElementById("bg-audio");
+  const iconNote = document.getElementById("icon-note");
+  const iconNoteSlash = document.getElementById("icon-note-slash");
+  let isPlaying = false;
+
+  function updateIcon() {
+    if (isPlaying) {
+      iconNote.style.display = "block";
+      iconNoteSlash.style.display = "none";
+      toggleBtn.classList.add("playing");
+    } else {
+      iconNote.style.display = "none";
+      iconNoteSlash.style.display = "block";
+      toggleBtn.classList.remove("playing");
+    }
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    if (!isPlaying) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          isPlaying = true; updateIcon();
+        }).catch(() => {
+          isPlaying = false; updateIcon();
+        });
+      } else {
+        isPlaying = true; audio.play(); updateIcon();
+      }
+    } else {
+      audio.pause(); isPlaying = false; updateIcon();
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    isPlaying = false; updateIcon();
+
+    // Ẩn và hiện lời chúc sau 20 giây
+    const msg = document.getElementById("final-message");
+    msg.style.display = "none";
+    setTimeout(() => {
+      msg.style.display = "block";
+    }, 20000);
+  });
+</script>
+
+<!-- Hiệu ứng chính Three.js -->
+<script type="module" src="script.js?v=02"></script>
 </body>
 </html>

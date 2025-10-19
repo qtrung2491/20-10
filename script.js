@@ -164,7 +164,7 @@ function _0x2261(_0x1b41d5, _0x1fe10f) {
         heartMeshes['forEach'](_0x141d1e => scene[_0x32a285(0xd6)](_0x141d1e)),
         heartMeshes = [];
         for (let _0x96b054 = 0x0; _0x96b054 < 0xf; _0x96b054++) {
-            const _0x36b57c = new THREE[(_0x32a285(0xa9))](0x1,0x1)
+            const _0x36b57c = new THREE[(_0x32a285(0xa9))](1.5,1.5) // Tăng kích thước ảnh rơi
               , _0x5cee8f = new THREE[(_0x32a285(0xa2))]({
                 'map': _0x379ef8[Math.floor(Math.random() * _0x379ef8.length)],
                 'transparent': !![],
@@ -175,7 +175,7 @@ function _0x2261(_0x1b41d5, _0x1fe10f) {
             _0x3b9b90['position']['x'] = (Math[_0x32a285(0xf5)]() - 0.5) * 0x1e,
             _0x3b9b90['position']['y'] = Math[_0x32a285(0xf5)]() * 0x20 - 0xc,
             _0x3b9b90[_0x32a285(0xea)]['z'] = (Math[_0x32a285(0xf5)]() - 0.5) * 0x14;
-            const _0x582ecb = 0x1 + Math[_0x32a285(0xf5)]() * 1.5;
+            const _0x582ecb = 1 + Math[_0x32a285(0xf5)]() * 1.5;
             _0x3b9b90[_0x32a285(0xfc)][_0x32a285(0xbd)](_0x582ecb, _0x582ecb, 0x1),
             scene[_0x32a285(0xb4)](_0x3b9b90),
             heartMeshes[_0x32a285(0xbb)](_0x3b9b90);
@@ -199,6 +199,7 @@ function _0x2261(_0x1b41d5, _0x1fe10f) {
             'vz': 0.7 + Math[_0x1980ca(0xf5)]() * 0.5,
             'tail': []
         },
+        _0xd3cfa5.name = 'shootingStar';
         scene[_0x1980ca(0xb4)](_0xd3cfa5),
         shootingStars[_0x1980ca(0xbb)](_0xd3cfa5);
     }
@@ -314,7 +315,7 @@ function _0x2261(_0x1b41d5, _0x1fe10f) {
             shootingStars[_0x2f72e0(0xd7)](_0x135e8f, 0x1));
         }
         );
-        if (Math[_0x2e656e(0xf5)]() < 0.05)
+        if (Math[_0x2e656e(0xf5)]() < 0.024) // Tăng sao băng
             spawnShootingStar();
         renderer[_0x2e656e(0xc7)](scene, camera);
     }
@@ -337,20 +338,90 @@ function _0x2261(_0x1b41d5, _0x1fe10f) {
         renderer['setSize'](_0x25bfeb, _0x43bec5);
     }
     );
-    const interactionEvents = [_0x1f451e(0x9c), _0x1f451e(0xf9), _0x1f451e(0xbc), _0x1f451e(0xcb), _0x1f451e(0xc0)];
-    function createStarsForLoading() {
-        const _0x32c61e = _0x1f451e
-          , _0x476527 = 0x32;
-        for (let _0x43d0d9 = 0x0; _0x43d0d9 < _0x476527; _0x43d0d9++) {
-            const _0x2b1b21 = document[_0x32c61e(0xd9)]('div');
-            _0x2b1b21[_0x32c61e(0xf4)] = _0x32c61e(0xb0),
-            _0x2b1b21[_0x32c61e(0xd8)]['left'] = Math[_0x32c61e(0xf5)]() * 0x64 + '%',
-            _0x2b1b21[_0x32c61e(0xd8)][_0x32c61e(0xba)] = Math[_0x32c61e(0xf5)]() * 0x64 + '%';
-            const _0x43d884 = Math[_0x32c61e(0xf5)]() * 0x3;
-            _0x2b1b21[_0x32c61e(0xd8)]['width'] = _0x43d884 + 'px',
-            _0x2b1b21[_0x32c61e(0xd8)][_0x32c61e(0xc6)] = _0x43d884 + 'px',
-            _0x2b1b21[_0x32c61e(0xd8)]['animationDelay'] = Math[_0x32c61e(0xf5)]() * 0x2 + 's';
-            const _0x4ae653 = Math['random']() * 0x5 + 0x5;
-            _0x2b1b21[_0x32c61e(0xd8)][_0x32c61e(0xbe)] = _0x32c61e(0x9e) + _0x4ae653 + 'px\x20#fff';
+
+    // ----- TÍNH NĂNG MỚI: BẮT SAO BĂNG VÀ VẬT PHẨM RƠI -----
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function onMouseClick(event) {
+        // Xử lý cho cả chuột và chạm màn hình
+        const clientX = event.clientX || event.touches[0].clientX;
+        const clientY = event.clientY || event.touches[0].clientY;
+
+        mouse.x = (clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+
+        // Kiểm tra va chạm với sao băng
+        const starIntersects = raycaster.intersectObjects(shootingStars);
+        if (starIntersects.length > 0) {
+            const clickedStar = starIntersects[0].object;
+            createHeartExplosion(clickedStar.position);
+            scene.remove(clickedStar);
+            const index = shootingStars.indexOf(clickedStar);
+            if (index > -1) {
+                shootingStars.splice(index, 1);
+            }
+            return; 
+        }
+
+        // Kiểm tra va chạm với các ảnh rơi
+        const heartIntersects = raycaster.intersectObjects(heartMeshes);
+        if (heartIntersects.length > 0) {
+            const clickedHeart = heartIntersects[0].object;
+            createHeartExplosion(clickedHeart.position);
+            scene.remove(clickedHeart);
+            const index = heartMeshes.indexOf(clickedHeart);
+            if (index > -1) {
+                heartMeshes.splice(index, 1);
+            }
         }
     }
+
+    let heartTextures; 
+    
+    loadHeartImage('./heart.png').then(img => {
+        heartTextures = createHeartTexture(img);
+    });
+
+    function createHeartExplosion(position) {
+        if (!heartTextures) return; 
+        
+        const heartsCount = 15;
+        for (let i = 0; i < heartsCount; i++) {
+            const geometry = new THREE.PlaneGeometry(0.5, 0.5);
+            const material = new THREE.MeshBasicMaterial({
+                map: heartTextures,
+                transparent: true,
+                depthWrite: false,
+                depthTest: true
+            });
+            const heart = new THREE.Mesh(geometry, material);
+            heart.position.copy(position);
+
+            const velocity = new THREE.Vector3(
+                (Math.random() - 0.5) * 0.3,
+                (Math.random() - 0.5) * 0.3,
+                (Math.random() - 0.5) * 0.3
+            );
+
+            scene.add(heart);
+
+            let life = 0;
+            const animateHeart = () => {
+                if (life < 60) {
+                    heart.position.add(velocity);
+                    heart.material.opacity = 1 - (life / 60);
+                    life++;
+                    requestAnimationFrame(animateHeart);
+                } else {
+                    scene.remove(heart);
+                }
+            };
+            animateHeart();
+        }
+    }
+    
+    window.addEventListener('click', onMouseClick, false);
+    window.addEventListener('touchstart', onMouseClick, false); // Thêm sự kiện cho màn hình cảm ứng
